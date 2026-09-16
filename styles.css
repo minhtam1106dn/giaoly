@@ -41,3 +41,28 @@ html:fullscreen{overflow:auto;background:var(--bg)}
 .slide-settings{margin-bottom:24px}.slide-settings summary{cursor:pointer;min-height:44px;font-size:18px;font-weight:700;padding:8px 0}.slide-settings summary:focus-visible{outline:3px solid var(--brand);outline-offset:4px}.slide-settings summary span{display:block;font-size:13px;font-weight:400}.slide-settings form{margin-top:24px}.page-settings-grid{display:grid;gap:20px}.page-settings-grid fieldset{min-width:0;border:1px solid var(--border);border-radius:12px;padding:18px}.page-settings-grid legend{font-weight:700;padding:0 8px}.page-settings-grid .check-label{margin-bottom:16px}.page-settings-grid label:last-child{margin-bottom:0}.queue-bookend{padding:18px 20px;background:var(--tint);border:1px solid var(--border);border-radius:12px;color:var(--brand);font-weight:650;margin:12px 0;overflow-wrap:anywhere}
 .event-page{min-height:430px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:28px;background:var(--paper);border:1px solid var(--border);border-top:6px solid var(--brand);border-radius:20px;padding:40px 24px;box-shadow:var(--shadow)}.event-page h2{font-size:clamp(32px,5vw,64px);line-height:1.25;max-width:20ch;text-wrap:balance;color:var(--brand);margin:0;overflow-wrap:anywhere}.event-page p{font-size:clamp(18px,2.3vw,28px);line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;max-width:65ch;margin:0}#jump{width:145px}
 @media(min-width:768px){.page-settings-grid{grid-template-columns:1fr 1fr}.event-page{padding:60px;min-height:480px}}
+
+/* Match the settings card heading and subtitle, with the disclosure arrow at right. */
+.slide-settings{padding:22px}.slide-settings summary{display:block;position:relative;list-style:none;padding:0 28px 0 0;min-height:44px}.slide-settings summary::-webkit-details-marker{display:none}.slide-settings summary::after{content:'›';position:absolute;right:0;top:0;font-size:24px;line-height:28px;color:var(--muted)}.slide-settings[open] summary::after{transform:rotate(90deg)}.slide-settings summary .slide-summary-title{font-size:20px;font-weight:700;line-height:1.4;letter-spacing:-.02em;margin-bottom:6px}.slide-settings summary .slide-summary-subtitle{font-size:12px;font-weight:400;line-height:1.6}.slide-settings form>.button-group{margin-top:20px}
+@media(max-width:480px){.slide-settings{padding:18px}}
+/* Reserve viewport space for controls; the visible card is fitted by presenter.js. */
+html:fullscreen .presenter{height:100dvh;width:calc(100% - 32px);max-width:none;padding:12px 0;display:flex;flex-direction:column;gap:10px}
+html:fullscreen .presenter .page-heading{padding:0;gap:12px;flex-wrap:nowrap;flex-shrink:0}
+html:fullscreen .presenter .page-heading h1{font-size:clamp(18px,2.4vw,30px);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+html:fullscreen #fullscreen{flex-shrink:0}
+html:fullscreen #presentation{display:flex;flex-direction:column;gap:10px;flex:1;min-height:0}
+html:fullscreen .session-bar{margin:0;flex-shrink:0}
+html:fullscreen #slide-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+html:fullscreen #slide-stage>article{flex-shrink:0;min-height:0;margin:0}
+html:fullscreen .question-card{padding:20px 28px}
+html:fullscreen .event-page{padding:32px}
+html:fullscreen .presenter-controls{margin:0;flex-shrink:0}
+html:fullscreen #timer-status{margin:0;min-height:0;flex-shrink:0}
+html:fullscreen .option{min-height:0;padding:12px 16px}
+html:fullscreen .time-track{margin:12px 0 18px}
+html:fullscreen #question-instruction{margin-bottom:16px}
+html:fullscreen .answer-explanation{margin-top:16px;padding:12px 18px}
+/* Reduce spacing before reducing text on questions with many choices. */
+html:fullscreen .question-card:has(.option:nth-child(9)) .option{padding:6px 10px;gap:10px}
+html:fullscreen .question-card:has(.option:nth-child(9)) :is(.option-letter,.order-rank){width:26px;min-width:26px;height:26px;font-size:14px;border-radius:6px}
+html:fullscreen .question-card:has(.option:nth-child(9)) :is(.match-column,.sequence,.options-grid){gap:6px}

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f5f7fb"><meta name="description" content="Trình chiếu câu hỏi giáo lý, đếm thời gian và công bố đáp án.">
-<title>Giaoly · Trình chiếu câu hỏi</title><link rel="stylesheet" href="styles.css?v=20260916-pages"><script type="module" src="presenter.js?v=20260916-pages"></script>
+<title>Giaoly · Trình chiếu câu hỏi</title><link rel="stylesheet" href="styles.css?v=20260916-fit"><script type="module" src="presenter.js?v=20260916-fit"></script>
 </head>
 <body class="presenter-page">
 <header class="topbar"><a class="brand" href="./"><span class="brand-icon" aria-hidden="true">g.</span>giaoly <span class="brand-sub">Không gian học hỏi</span></a><nav aria-label="Điều hướng"><a class="nav-link active" href="./" aria-current="page">Trình chiếu</a><a class="nav-link" href="admin.html">Quản trị</a></nav></header>
@@ -12,6 +12,7 @@
 <div id="load-error" role="alert" hidden></div>
 <div id="presentation" hidden>
 <div class="session-bar"><label class="jump-label">Chuyển đến <select id="jump" aria-label="Chuyển trang trình chiếu"></select></label><span id="question-count" class="muted"></span></div>
+<div id="slide-stage">
 <article id="event-page" class="event-page" aria-labelledby="event-title" hidden><h2 id="event-title"></h2><p id="event-body"></p></article>
 <article id="question-card" class="question-card" aria-labelledby="question-title">
 <div class="question-top"><span class="eyebrow" id="question-number"></span><div class="timer-wrap"><span class="muted">Thời gian còn lại</span><output id="timer" role="timer" aria-label="Thời gian còn lại">00:30</output></div></div>
@@ -20,6 +21,7 @@
 <div id="question-content"></div>
 <div id="answer-explanation" class="answer-explanation" hidden></div>
 </article>
+</div>
 <div class="presenter-controls"><div class="button-group"><button id="prev" class="secondary">← Câu trước</button><button id="next" class="secondary">Câu tiếp →</button></div><div id="question-controls" class="button-group"><button id="timer-toggle" class="secondary">Bắt đầu đếm</button><button id="timer-reset" class="quiet">Đặt lại</button><button id="reveal" class="primary" aria-pressed="false">Hiện đáp án</button></div></div>
 <p id="timer-status" role="status" class="status-line"></p>
 </div>

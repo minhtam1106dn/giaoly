@@ -17,6 +17,8 @@ Trang trình chiếu câu hỏi giáo lý và quản trị trực tuyến.
 6. Nhấn **Bắt đầu đếm**, **Tạm dừng**, **Đặt lại** hoặc **Hiện đáp án**. Hiện đáp án dừng đồng hồ; hết giờ không tự hiện đáp án và không tự chuyển câu.
 7. Phím tắt ngoài các ô nhập/nút: ← → chuyển câu, Space đếm/tạm dừng, A hiện/ẩn đáp án, R đặt lại đồng hồ.
 
+Khi bật **Toàn màn hình**, khung câu hỏi tự điều chỉnh kích thước theo màn hình, kể cả sau khi hiện đáp án và giải thích. Các nút điều khiển giữ nguyên kích thước; thoát toàn màn hình sẽ trở lại bố cục thông thường. Nội dung càng dài sẽ được thu nhỏ hơn để hiển thị trọn vẹn.
+
 ## Trang mở đầu và kết thúc
 
 Trong quản trị, mở **Trang mở đầu & kết thúc**. Với mỗi trang, bật **Đưa lên trình chiếu**, nhập tiêu đề (tối đa 160 ký tự) và nội dung bổ sung (tối đa 4.000 ký tự, giữ nguyên xuống dòng), rồi bấm **Lưu trang trình chiếu**. Thiết lập được đồng bộ và đi kèm file xuất/nhập dữ liệu.

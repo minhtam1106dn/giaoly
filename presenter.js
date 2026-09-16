@@ -2,6 +2,26 @@ import {escapeHTML as h,presentationPages} from './data.js?v=20260916-pages';
 import {loadPublic,demo} from './api.js?v=20260916-pages';
 const $ = s=>document.querySelector(s);
 let data,slides=[],questions=[],index=0,revealed=false,remaining=0,deadline=0,running=false,interval;
+// Fit only the display card; navigation keeps its normal touch-target size.
+let fitFrame;
+function scheduleFit(){cancelAnimationFrame(fitFrame);fitFrame=requestAnimationFrame(fitSlide);}
+function fitSlide(){
+ const cards=[$('#question-card'),$('#event-page')];
+ for(const card of cards){card.style.removeProperty('zoom');card.style.removeProperty('width');}
+ if(!document.fullscreenElement||$('#presentation').hidden)return;
+ const stage=$('#slide-stage'),card=cards.find(c=>!c.hidden);
+ if(!card||stage.clientHeight<=0)return;
+ const available=stage.clientHeight-2;
+ const size=scale=>{card.style.zoom=String(scale);card.style.width='100%';return card.getBoundingClientRect().height;};
+ let low=.02,high=1.4;
+ // Choose the largest size that fits after text has reflowed at that size.
+ for(let n=0;n<12;n++){const mid=(low+high)/2;if(size(mid)<=available)low=mid;else high=mid;}
+ size(low);
+}
+new ResizeObserver(scheduleFit).observe($('#slide-stage'));
+new MutationObserver(scheduleFit).observe($('#timer-status'),{childList:true,characterData:true,subtree:true});
+window.addEventListener('resize',scheduleFit);
+document.fonts.ready.then(scheduleFit);
 const instructions={single:'Chọn một đáp án đúng.',boolean:'Nhận định dưới đây đúng hay sai?',fill:'Điền từ thích hợp vào từng chỗ trống.',multiple:'Có nhiều đáp án đúng. Hãy chọn tất cả đáp án phù hợp.',match:'Ghép số ở cột A với chữ cái tương ứng ở cột B.',order:'Sắp xếp các mục theo đúng thứ tự.',short:'Đưa ra câu trả lời ngắn gọn.'};
 const letter=i=>String.fromCharCode(65+i);
 const PAIR_COLORS=['#1d4ed8','#b45309','#047857','#be185d','#6d28d9','#0e7490','#c2410c','#4d7c0f','#a21caf','#334155','#9f1239','#4338ca'];
@@ -22,7 +42,7 @@ function renderContent(){
  $('#question-content').innerHTML=html;
  $('#answer-explanation').hidden=!revealed||!q.explanation;
  $('#answer-explanation').innerHTML=`<strong>Giải thích đáp án</strong>${h(q.explanation)}`;
- $('#reveal').textContent=revealed?'Ẩn đáp án':'Hiện đáp án';$('#reveal').setAttribute('aria-pressed',String(revealed));
+ $('#reveal').textContent=revealed?'Ẩn đáp án':'Hiện đáp án';$('#reveal').setAttribute('aria-pressed',String(revealed));scheduleFit();
 }
 function clockPaint(){
  const seconds=Math.ceil(remaining/1000);$('#timer').textContent=`${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;
@@ -40,13 +60,14 @@ function show(i){
  $('#jump').value=String(index);$('#prev').disabled=index===0;$('#next').disabled=index===slides.length-1;
  $('#prev').textContent='← Trang trước';$('#next').textContent=slide.kind==='opening'&&questions.length?'Bắt đầu câu hỏi →':'Trang tiếp →';
  $('#question-card').hidden=!q;$('#question-controls').hidden=!q;$('#event-page').hidden=!!q;$('#timer-status').textContent='';
+ scheduleFit();
  if(!q){$('#event-title').textContent=slide.title;$('#event-body').textContent=slide.body;$('#event-body').hidden=!slide.body;$('#question-count').textContent=slide.kind==='opening'?'Trang mở đầu':'Trang kết thúc';return;}
  $('#question-title').textContent=q.prompt;$('#question-number').textContent=`CÂU ${String(slide.number).padStart(2,'0')}`;$('#question-count').textContent=`${slide.number} / ${questions.length} câu hỏi`;$('#question-instruction').textContent=instructions[data.types.find(t=>t.id===q.type).engine];renderContent();reset();
 }
 function reveal(){if(!slides[index]?.question)return;revealed=!revealed;if(revealed){stop();clockPaint();$('#timer-status').textContent='';}renderContent();}
 $('#prev').onclick=()=>{if(index>0)show(index-1);};$('#next').onclick=()=>{if(index<slides.length-1)show(index+1);};$('#jump').onchange=e=>show(Number(e.target.value));$('#reveal').onclick=reveal;$('#timer-toggle').onclick=toggleTimer;$('#timer-reset').onclick=reset;
 $('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{$('#timer-status').textContent='Trình duyệt này không hỗ trợ toàn màn hình. Bạn có thể dùng chức năng phóng to của trình duyệt.';}};
-document.addEventListener('fullscreenchange',()=>{$('#fullscreen').textContent=document.fullscreenElement?'Thoát toàn màn hình':'Toàn màn hình';});
+document.addEventListener('fullscreenchange',()=>{$('#fullscreen').textContent=document.fullscreenElement?'Thoát toàn màn hình':'Toàn màn hình';scheduleFit();});
 document.addEventListener('keydown',e=>{if(!slides.length||e.ctrlKey||e.metaKey||e.altKey||e.target.closest('input,textarea,select,button,a,[contenteditable]'))return;if(e.code==='ArrowLeft'){e.preventDefault();$('#prev').click();}if(e.code==='ArrowRight'){e.preventDefault();$('#next').click();}if(e.code==='Space'){e.preventDefault();toggleTimer();}if(e.key.toLowerCase()==='a')reveal();if(e.key.toLowerCase()==='r')reset();});
 document.addEventListener('visibilitychange',()=>{if(running)tick();});
 async function load(){try{
