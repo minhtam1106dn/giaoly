@@ -25,8 +25,8 @@ Trang trình chiếu câu hỏi giáo lý và quản trị trực tuyến.
 | Đúng / Sai | Chọn nhận định đúng hoặc sai | Tô xanh lựa chọn đúng |
 | Điền từ | Dùng `{{…}}`; mỗi dòng đáp án ứng với một chỗ trống | Điền và tô nổi bật từng từ |
 | Nhiều đáp án | 2–12 lựa chọn, đánh dấu các đáp án đúng | Tô xanh tất cả lựa chọn đúng |
-| Nối hai cột | Mỗi dòng cột A ghép với dòng cùng vị trí cột B | Hiện cặp số ↔ chữ, giữ bố cục đã đảo cột B |
-| Sắp xếp | 2–12 dòng theo thứ tự đúng | Xếp lại đúng thứ tự và đánh số bước |
+| Nối hai cột | Mỗi dòng cột A ghép với dòng cùng vị trí cột B | Tô số và chữ cùng màu cho từng cặp, kèm ký hiệu số ↔ chữ; giữ nguyên bố cục |
+| Sắp xếp | 2–12 dòng theo thứ tự đúng | Giữ nguyên vị trí câu hỏi, thêm số thứ tự đúng bên cạnh |
 | Trả lời ngắn | Nhập đáp án mẫu | Hiện đáp án trong khung nổi bật |
 
 Giao diện quản trị sử dụng các dạng câu hỏi đã có; không còn mục thêm dạng mới.

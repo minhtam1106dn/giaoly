@@ -4,9 +4,10 @@ const $ = s=>document.querySelector(s);
 let data,questions=[],index=0,revealed=false,remaining=0,deadline=0,running=false,interval;
 const instructions={single:'Chọn một đáp án đúng.',boolean:'Nhận định dưới đây đúng hay sai?',fill:'Điền từ thích hợp vào từng chỗ trống.',multiple:'Có nhiều đáp án đúng. Hãy chọn tất cả đáp án phù hợp.',match:'Ghép số ở cột A với chữ cái tương ứng ở cột B.',order:'Sắp xếp các mục theo đúng thứ tự.',short:'Đưa ra câu trả lời ngắn gọn.'};
 const letter=i=>String.fromCharCode(65+i);
+const PAIR_COLORS=['#1d4ed8','#b45309','#047857','#be185d','#6d28d9','#0e7490','#c2410c','#4d7c0f','#a21caf','#334155','#9f1239','#4338ca'];
 // Stable non-identity ordering keeps the board unchanged when revealing an answer.
 function permutation(length,id){let seed=[...id].reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0,7);const a=Array.from({length},(_,i)=>i);for(let i=length-1;i>0;i--){seed=(seed*1664525+1013904223)>>>0;const j=seed%(i+1);[a[i],a[j]]=[a[j],a[i]];}if(a.every((x,i)=>x===i))a.push(a.shift());return a;}
-function option(label,text,correct=false,mark='✓ Đúng'){return `<div class="option${correct?' correct':''}"><span class="option-letter">${h(label)}</span><span class="option-text">${h(text)}</span>${correct?`<span class="answer-mark">${h(mark)}</span>`:''}</div>`;}
+function option(label,text,correct=false,mark='✓ Đúng',pairIndex=null){const matched=correct&&pairIndex!==null;return `<div class="option${matched?' matched':correct?' correct':''}"${matched?` style="--pair-color:${PAIR_COLORS[pairIndex]}"`:''}><span class="option-letter">${h(label)}</span><span class="option-text">${h(text)}</span>${correct?`<span class="answer-mark">${h(mark)}</span>`:''}</div>`;}
 function renderContent(){
  const q=questions[index],engine=data.types.find(t=>t.id===q.type).engine;let html='';
  if(engine==='single'||engine==='multiple')html=`<div class="options-grid">${q.options.map((text,i)=>option(letter(i),text,revealed&&q.correct.includes(i))).join('')}</div>`;
@@ -14,10 +15,10 @@ function renderContent(){
  if(engine==='fill'){const parts=q.template.split('{{…}}');html=`<div class="fill-sentence">${parts.map((p,i)=>h(p)+(i<parts.length-1?`<span class="blank${revealed?' solved':''}">${revealed?h(q.answers[i]):`(${i+1}) …`}</span>`:'')).join('')}</div>`;}
  if(engine==='match'){
   const shuffled=permutation(q.pairs.length,q.id);
-  html=`<div class="match-grid"><div class="match-column"><h3>CỘT A</h3>${q.pairs.map((p,i)=>option(i+1,p.left,revealed,`↔ ${letter(shuffled.indexOf(i))}`)).join('')}</div><div class="match-column"><h3>CỘT B</h3>${shuffled.map((original,i)=>option(letter(i),q.pairs[original].right,revealed,`↔ ${original+1}`)).join('')}</div></div>`;
+  html=`<div class="match-grid"><div class="match-column"><h3>CỘT A</h3>${q.pairs.map((p,i)=>option(i+1,p.left,revealed,`↔ ${letter(shuffled.indexOf(i))}`,i)).join('')}</div><div class="match-column"><h3>CỘT B</h3>${shuffled.map((original,i)=>option(letter(i),q.pairs[original].right,revealed,`↔ ${original+1}`,original)).join('')}</div></div>`;
  }
- if(engine==='order'){const order=revealed?q.items.map((_,i)=>i):permutation(q.items.length,q.id);html=`<div class="sequence">${order.map((original,i)=>option(revealed?i+1:letter(i),q.items[original],revealed,`✓ Bước ${i+1}`)).join('')}</div>`;}
- if(engine==='short')html=revealed?`<div class="short-answer"><span class="eyebrow">ĐÁP ÁN</span><div>${h(q.answer)}</div></div>`:'<div class="short-placeholder">Cùng suy nghĩ và đưa ra câu trả lời của bạn.</div>';
+ if(engine==='order'){const order=permutation(q.items.length,q.id);html=`<div class="sequence">${order.map((original,i)=>`<div class="option"><span class="option-letter">${letter(i)}</span><span class="option-text">${h(q.items[original])}</span><span class="order-rank${revealed?'':' unrevealed'}" ${revealed?`aria-label="Thứ tự đúng: ${original+1}"`:'aria-hidden="true"'}>${revealed?original+1:'&nbsp;'}</span></div>`).join('')}</div>`;}
+ if(engine==='short')html=revealed?`<div class="short-answer"><span class="eyebrow">ĐÁP ÁN</span><div>${h(q.answer)}</div></div>`:'<div class="short-placeholder">Cùng suy nghĩ và đưa ra câu trả lời nào!</div>';
  $('#question-content').innerHTML=html;
  $('#answer-explanation').hidden=!revealed||!q.explanation;
  $('#answer-explanation').innerHTML=`<strong>Giải thích đáp án</strong>${h(q.explanation)}`;
@@ -34,7 +35,7 @@ function tick(){remaining=Math.max(0,deadline-Date.now());if(remaining===0){stop
 function reset(){stop();remaining=questions[index].seconds*1000;clockPaint();$('#timer-status').textContent='';}
 function toggleTimer(){if(running){stop();$('#timer-status').textContent='Đã tạm dừng đếm thời gian.';}else{if(remaining<=0)remaining=questions[index].seconds*1000;deadline=Date.now()+remaining;running=true;interval=setInterval(tick,100);$('#timer-status').textContent='Đang đếm thời gian…';}clockPaint();}
 function show(i){stop();index=i;revealed=false;const q=questions[index];$('#question-title').textContent=q.prompt;$('#question-number').textContent=`CÂU ${String(index+1).padStart(2,'0')}`;$('#question-count').textContent=`${index+1} / ${questions.length} câu hỏi`;$('#question-instruction').textContent=instructions[data.types.find(t=>t.id===q.type).engine];$('#jump').value=String(index);$('#prev').disabled=index===0;$('#next').disabled=index===questions.length-1;renderContent();reset();}
-function reveal(){revealed=!revealed;if(revealed){stop();clockPaint();$('#timer-status').textContent='Đã hiện đáp án. Đồng hồ đã dừng.';}renderContent();}
+function reveal(){revealed=!revealed;if(revealed){stop();clockPaint();$('#timer-status').textContent='';}renderContent();}
 $('#prev').onclick=()=>{if(index>0)show(index-1);};$('#next').onclick=()=>{if(index<questions.length-1)show(index+1);};$('#jump').onchange=e=>show(Number(e.target.value));$('#reveal').onclick=reveal;$('#timer-toggle').onclick=toggleTimer;$('#timer-reset').onclick=reset;
 $('#fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{$('#timer-status').textContent='Trình duyệt này không hỗ trợ toàn màn hình. Bạn có thể dùng chức năng phóng to của trình duyệt.';}};
 document.addEventListener('fullscreenchange',()=>{$('#fullscreen').textContent=document.fullscreenElement?'Thoát toàn màn hình':'Toàn màn hình';});
