@@ -1,5 +1,5 @@
 import {CONFIG} from './config.js';
-import {SEED, clone, validateData} from './data.js';
+import {SEED, clone, validateData} from './data.js?v=20260916-pages';
 export const configured = Boolean(CONFIG.supabaseUrl && CONFIG.supabasePublishableKey);
 export const demo = new URLSearchParams(location.search).get('demo') === '1';
 const SESSION_KEY = 'giaoly.auth.v1';

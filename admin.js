@@ -1,7 +1,8 @@
-import {TYPES,ENGINES,clone,uid,escapeHTML as h,validateQuestion,validateData} from './data.js';
-import {configured,demo,loadAdmin,saveAdmin,login,logout,getSession,signup,recover,updatePassword,acceptCallback} from './api.js';
+import {TYPES,ENGINES,presentationPages,clone,uid,escapeHTML as h,validateQuestion,validateData} from './data.js?v=20260916-pages';
+import {configured,demo,loadAdmin,saveAdmin,login,logout,getSession,signup,recover,updatePassword,acceptCallback} from './api.js?v=20260916-pages';
 const $=s=>document.querySelector(s), form=$('#question-form');
 let data,revision=0,busy=false,dirty=false,deleteId=null,imported=null;
+let pagesDirty=false;
 let activeEngine="single",activeView="bank",editorOrigin=null;
 const editorDialog=$("#editor-dialog");
 function status(message,error=false){$('#global-status').textContent=message;$('#global-status').style.color=error?'var(--danger)':'var(--green)';}
@@ -36,7 +37,22 @@ function questionRow(q,number,queue,selected){
  const position=selected.findIndex(item=>item.id===q.id)+1;
  return `<li class="question-row${q.enabled?' is-selected':''}" data-id="${h(q.id)}"><div class="question-row-content"><div class="row-top"><span class="row-number">${number}</span><span class="row-title">${h(q.prompt)}</span></div><div class="row-meta"><span>${h(data.types.find(t=>t.id===q.type).label)}</span><span>${q.seconds} giây</span>${!queue&&q.enabled?`<span class="selected-marker">Đã chọn · Câu ${position} trên trình chiếu</span>`:''}</div></div><div class="row-actions"><label class="check-label"><input type="checkbox" class="toggle-enabled" ${q.enabled?'checked':''} aria-label="Chọn câu ${number} để trình chiếu">${queue?'Đã chọn':'Trình chiếu'}</label>${queue?`<div class="reorder-controls"><button data-action="up" class="secondary" aria-label="Đưa câu ${number} lên" ${number===1?'disabled':''}>↑</button><button data-action="down" class="secondary" aria-label="Đưa câu ${number} xuống" ${number===selected.length?'disabled':''}>↓</button><label class="position-label">Vị trí<input type="number" class="position" aria-label="Vị trí trình chiếu câu ${number}" min="1" max="${selected.length}" value="${number}"></label></div>`:''}<button class="secondary" data-action="edit" aria-haspopup="dialog" aria-controls="editor-dialog">Sửa</button>${queue?'':'<button class="quiet" data-action="delete">Xóa</button>'}</div></li>`;
 }
+function fillPages(){
+ const f=$('#pages-form'),pages=presentationPages(data);
+ for(const key of ['opening','closing']){f.elements[`${key}-enabled`].checked=pages[key].enabled;f.elements[`${key}-title`].value=pages[key].title;f.elements[`${key}-body`].value=pages[key].body;}
+ pagesDirty=false;
+}
+$('#pages-form').oninput=()=>{pagesDirty=true;$('#pages-status').textContent='Có thay đổi chưa lưu';};
+$('#pages-form').onsubmit=async e=>{
+ e.preventDefault();const f=e.target,next=clone(data);next.pages={};
+ for(const key of ['opening','closing'])next.pages[key]={enabled:f.elements[`${key}-enabled`].checked,title:f.elements[`${key}-title`].value.trim(),body:f.elements[`${key}-body`].value.trim()};
+ const button=f.querySelector('[type=submit]');
+ try{validateData(next);button.textContent='Đang lưu…';$('#pages-status').textContent='Đang lưu…';await persist(next,'Đã lưu trang mở đầu và kết thúc.');pagesDirty=false;$('#pages-status').textContent='Đã lưu';renderList();}catch(e){$('#pages-status').textContent=e.message;}finally{button.textContent='Lưu trang trình chiếu';}
+};
 function renderList(){
+ const pages=presentationPages(data);
+ for(const key of ['opening','closing']){const el=$(`#queue-${key}`);el.hidden=!pages[key].enabled;el.textContent=`${key==='opening'?'Mở đầu':'Kết thúc'} · ${pages[key].title}`;}
+
  const selected=data.questions.filter(q=>q.enabled),query=$('#search').value.trim().toLocaleLowerCase('vi');
  const category=data.questions.filter(q=>engineOf(q)===activeEngine),entries=category.filter(q=>!query||q.prompt.toLocaleLowerCase('vi').includes(query));
  $('#library-count').textContent=`${data.questions.length} câu hỏi trong 7 dạng trắc nghiệm`;
@@ -91,11 +107,11 @@ $('#cancel-delete').onclick=()=>$('#delete-dialog').close();
 $('#settings-form').onsubmit=async e=>{e.preventDefault();const next=clone(data);next.title=e.target.elements.title.value.trim();try{await persist(next,'Đã lưu tên buổi thi.');}catch{}};
 $('#export').onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`giaoly-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status('Đã xuất bộ câu hỏi đang lưu. Nội dung chưa bấm Lưu câu hỏi không nằm trong file.');};
 $('#import').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file)return;try{if(file.size>4000000)throw new Error('File không được lớn hơn 4 MB.');imported=validateData(JSON.parse(await file.text()));$('#import-summary').textContent=`“${imported.title}” · ${imported.questions.length} câu hỏi · ${imported.types.length} dạng.`;$('#import-dialog').showModal();}catch(err){status(`Không nhập được: ${err.message}`,true);}};
-$('#confirm-import').onclick=async()=>{try{await persist(clone(imported),'Đã nhập và đồng bộ bộ câu hỏi.');$('#settings-form').elements.title.value=data.title;fillTypes();clearEditor();renderList();$('#import-dialog').close();}catch(e){$('#import-dialog').close();error(e.message);}};$('#cancel-import').onclick=()=>$('#import-dialog').close();
-async function start(){try{const result=await loadAdmin();data=result.data;revision=result.revision;$('#admin-content').hidden=false;$('#login-panel').hidden=true;$('#settings-form').elements.title.value=data.title;$('#account-label').textContent=demo?'Chế độ thử trên máy':getSession()?.user?.email||'Quản trị viên';$('#logout').hidden=demo;fillTypes();initTabs();clearEditor();renderList();status(demo?'Đang thử nghiệm. Dữ liệu này không được công bố lên website.':'Đã tải dữ liệu mới nhất.');}catch(e){$('#login-panel').hidden=false;$('#admin-content').hidden=true;status(e.message,true);}}
+$('#confirm-import').onclick=async()=>{try{await persist(clone(imported),'Đã nhập và đồng bộ bộ câu hỏi.');$('#settings-form').elements.title.value=data.title;fillPages();fillTypes();clearEditor();renderList();$('#import-dialog').close();}catch(e){$('#import-dialog').close();error(e.message);}};$('#cancel-import').onclick=()=>$('#import-dialog').close();
+async function start(){try{const result=await loadAdmin();data=result.data;revision=result.revision;$('#admin-content').hidden=false;$('#login-panel').hidden=true;$('#settings-form').elements.title.value=data.title;$('#account-label').textContent=demo?'Chế độ thử trên máy':getSession()?.user?.email||'Quản trị viên';$('#logout').hidden=demo;fillPages();fillTypes();initTabs();clearEditor();renderList();status(demo?'Đang thử nghiệm. Dữ liệu này không được công bố lên website.':'Đã tải dữ liệu mới nhất.');}catch(e){$('#login-panel').hidden=false;$('#admin-content').hidden=true;status(e.message,true);}}
 $('#login-form').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;b.textContent='Đang đăng nhập…';$('#login-error').hidden=true;try{await login(e.target.elements.email.value.trim(),e.target.elements.password.value);e.target.elements.password.value='';await start();}catch(err){$('#login-error').hidden=false;$('#login-error').textContent=err.message;}finally{b.disabled=false;b.textContent='Đăng nhập';}};
-$('#logout').onclick=async()=>{if(busy)return status('Đang lưu, vui lòng chờ.');if(!canDiscard())return;try{await logout();}catch{}dirty=false;data=null;$('#admin-content').hidden=true;$('#login-panel').hidden=false;$('#account-label').textContent='';status('Đã đăng xuất.');};
-window.addEventListener('beforeunload',e=>{if(dirty||busy){e.preventDefault();e.returnValue='';}});
+$('#logout').onclick=async()=>{if(busy)return status('Đang lưu, vui lòng chờ.');if(!canDiscard()||(pagesDirty&&!confirm('Trang trình chiếu có nội dung chưa lưu. Đăng xuất?')))return;try{await logout();}catch{}dirty=false;pagesDirty=false;data=null;$('#admin-content').hidden=true;$('#login-panel').hidden=false;$('#account-label').textContent='';status('Đã đăng xuất.');};
+window.addEventListener('beforeunload',e=>{if(dirty||pagesDirty||busy){e.preventDefault();e.returnValue='';}});
 $('#register').onclick=async()=>{const f=$('#login-form');if(!f.reportValidity())return;const buttons=[...f.querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);$('#login-error').hidden=true;try{const signedIn=await signup(f.elements.email.value.trim(),f.elements.password.value);f.elements.password.value='';if(signedIn)await start();else status('Kiểm tra hộp thư để xác nhận tài khoản, sau đó đăng nhập.');}catch(e){$('#login-error').hidden=false;$('#login-error').textContent=e.message;}finally{buttons.forEach(b=>b.disabled=false);}};
 $('#forgot-password').onclick=async()=>{const email=$('#login-form').elements.email;if(!email.reportValidity())return;$('#forgot-password').disabled=true;try{await recover(email.value.trim());status('Nếu email hợp lệ, bạn sẽ nhận được liên kết đặt lại mật khẩu.');}catch(e){status(e.message,true);}finally{$('#forgot-password').disabled=false;}};
 $('#password-form').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;try{await updatePassword(e.target.elements.password.value);e.target.reset();$('#password-dialog').close();await start();status('Đã đổi mật khẩu.');}catch(err){$('#password-error').hidden=false;$('#password-error').textContent=err.message;}finally{b.disabled=false;}};

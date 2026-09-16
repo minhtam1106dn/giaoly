@@ -14,6 +14,12 @@ export const SEED = {
     { id: 'demo-short', type: 'short', seconds: 30, enabled: true, prompt: 'Mẹ của Chúa Giêsu có tên là gì?', answer: 'Maria', explanation: 'Đức Maria là Mẹ của Chúa Giêsu.' },
   ],
 };
+export function presentationPages(data) {
+  return data.pages || {
+    opening: {enabled:false,title:data.title,body:''},
+    closing: {enabled:false,title:'Xin chân thành cảm ơn!',body:''},
+  };
+}
 export const clone = data => structuredClone(data);
 export const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const uid = () => crypto.randomUUID();
@@ -50,6 +56,13 @@ export function validateQuestion(q, types) {
 export function validateData(data) {
   requireThat(data && data.version === 1, 'Định dạng dữ liệu không hỗ trợ (cần version: 1).');
   requireThat(text(data.title, 160), 'Tên buổi thi phải có từ 1 đến 160 ký tự.');
+  if (data.pages !== undefined) {
+    requireThat(data.pages && typeof data.pages === 'object' && !Array.isArray(data.pages), 'Thiết lập trang trình chiếu không hợp lệ.');
+    for (const key of ['opening','closing']) {
+      const page=data.pages[key];
+      requireThat(page && typeof page.enabled === 'boolean' && typeof page.title === 'string' && page.title.length <= 160 && (!page.enabled || page.title.trim().length > 0) && typeof page.body === 'string' && page.body.length <= 4000, 'Mỗi trang cần tiêu đề khi bật (tối đa 160 ký tự), nội dung tối đa 4.000 ký tự.');
+    }
+  }
   requireThat(Array.isArray(data.types) && data.types.length >= 7 && data.types.length <= 100, 'Danh sách dạng câu hỏi không hợp lệ.');
   requireThat(data.types.every(t => t && text(t.id,100) && text(t.label,80) && Object.hasOwn(ENGINES,t.engine)), 'Dạng câu hỏi phải dùng một trong 7 kiểu hiển thị.');
   requireThat(new Set(data.types.map(t=>t.id)).size === data.types.length, 'Mã dạng câu hỏi bị trùng.');

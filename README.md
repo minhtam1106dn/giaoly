@@ -17,6 +17,14 @@ Trang trình chiếu câu hỏi giáo lý và quản trị trực tuyến.
 6. Nhấn **Bắt đầu đếm**, **Tạm dừng**, **Đặt lại** hoặc **Hiện đáp án**. Hiện đáp án dừng đồng hồ; hết giờ không tự hiện đáp án và không tự chuyển câu.
 7. Phím tắt ngoài các ô nhập/nút: ← → chuyển câu, Space đếm/tạm dừng, A hiện/ẩn đáp án, R đặt lại đồng hồ.
 
+## Trang mở đầu và kết thúc
+
+Trong quản trị, mở **Trang mở đầu & kết thúc**. Với mỗi trang, bật **Đưa lên trình chiếu**, nhập tiêu đề (tối đa 160 ký tự) và nội dung bổ sung (tối đa 4.000 ký tự, giữ nguyên xuống dòng), rồi bấm **Lưu trang trình chiếu**. Thiết lập được đồng bộ và đi kèm file xuất/nhập dữ liệu.
+
+Trình chiếu theo thứ tự: trang mở đầu → các câu đã chọn → trang kết thúc. Dùng nút chuyển trang, phím ← → hoặc danh sách chuyển đến. Hai trang này không có đồng hồ hay đáp án và không làm thay đổi số thứ tự câu hỏi. Có thể bật từng trang độc lập, kể cả khi chưa chọn câu hỏi. Dữ liệu cũ mặc định tắt cả hai trang.
+
+Dự án Supabase đã có sẵn chỉ cần chạy `supabase/pages-migration.sql` để cập nhật hàm lưu, không thay đổi nội dung hiện có.
+
 ## Bảy kiểu hiển thị
 
 | Dạng | Biên soạn | Khi hiện đáp án |

@@ -1,31 +1,5 @@
+-- Add optional opening and closing pages without changing existing quiz data.
 begin;
-create table if not exists public.quiz_admins (
-  user_id uuid primary key references auth.users(id) on delete cascade,
-  created_at timestamptz not null default now()
-);
-create table if not exists public.quiz_workspace (
-  id integer primary key check(id=1),
-  data jsonb not null check(jsonb_typeof(data)='object'),
-  revision integer not null default 0,
-  updated_at timestamptz not null default now()
-);
-create table if not exists public.quiz_public (
-  id integer primary key check(id=1),
-  data jsonb not null,
-  updated_at timestamptz not null default now()
-);
-alter table public.quiz_admins enable row level security;
-alter table public.quiz_workspace enable row level security;
-alter table public.quiz_public enable row level security;
-revoke all on public.quiz_admins,public.quiz_workspace,public.quiz_public from anon,authenticated;
-grant select on public.quiz_admins,public.quiz_workspace to authenticated;
-grant select on public.quiz_public to anon,authenticated;
-drop policy if exists admin_self on public.quiz_admins;
-create policy admin_self on public.quiz_admins for select to authenticated using (user_id=(select auth.uid()));
-drop policy if exists admin_workspace_read on public.quiz_workspace;
-create policy admin_workspace_read on public.quiz_workspace for select to authenticated using (exists(select 1 from public.quiz_admins where user_id=(select auth.uid())));
-drop policy if exists published_read on public.quiz_public;
-create policy published_read on public.quiz_public for select to anon,authenticated using(true);
 create or replace function public.save_quiz(p_data jsonb,p_revision integer)
 returns integer language plpgsql security definer set search_path='' as $$
 declare new_revision integer; q jsonb; t jsonb; engine text; count_items integer; answer_index jsonb; clean_public jsonb; page jsonb;
@@ -87,26 +61,4 @@ begin
   return new_revision;
 end;
 $$;
-revoke all on function public.save_quiz(jsonb,integer) from public,anon,authenticated;
-grant execute on function public.save_quiz(jsonb,integer) to authenticated;
 commit;
-
--- Only explicitly allowed emails can create an admin account.
-create table if not exists public.quiz_admin_emails (email text primary key check(email=lower(email)));
-alter table public.quiz_admin_emails enable row level security;
-revoke all on public.quiz_admin_emails from anon,authenticated;
-create or replace function public.enroll_quiz_admin() returns trigger
-language plpgsql security definer set search_path='' as $$
-begin
-  if not exists(select 1 from public.quiz_admin_emails where email=lower(new.email)) then
-    raise exception 'Email is not authorized for Giaoly';
-  end if;
-  if new.email_confirmed_at is not null then
-    insert into public.quiz_admins(user_id) values(new.id) on conflict do nothing;
-  end if;
-  return new;
-end;
-$$;
-revoke all on function public.enroll_quiz_admin() from public,anon,authenticated;
-drop trigger if exists giaoly_admin_enrollment on auth.users;
-create trigger giaoly_admin_enrollment after insert or update of email_confirmed_at on auth.users for each row execute function public.enroll_quiz_admin();
