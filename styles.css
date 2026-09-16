@@ -5,3 +5,5 @@
 @media(max-width:480px){.topbar{gap:8px}.nav-link{padding:10px;font-size:13px}.page-heading{padding-top:26px;gap:16px}.panel{padding:18px}.panel-heading{flex-wrap:wrap}.question-card{padding:20px}.question-top .eyebrow{font-size:11px}.option{padding:14px;gap:10px}.answer-mark{font-size:11px}.match-column .option{font-size:16px;padding:10px}.presenter-controls>.button-group{width:100%}.presenter-controls button{flex:1}.session-bar .pill{margin-left:0}.settings-card{padding:18px}.question-row{padding:12px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 .login-panel{max-width:480px;margin:32px auto}.login-panel h2{font-size:26px}.login-panel p.muted{font-size:14px;margin-bottom:24px}.account-bar{display:flex;justify-content:flex-end;align-items:center;gap:12px;font-size:13px;color:var(--muted);margin-top:10px}.account-bar:has(#account-label:empty){display:none}
+
+#timer-status:empty{display:none}.presenter,.admin-shell{padding-bottom:32px}

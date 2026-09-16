@@ -8,10 +8,10 @@
 <body>
 <header class="topbar"><a class="brand" href="./"><span class="brand-icon" aria-hidden="true">g.</span>giaoly <span class="brand-sub">Không gian học hỏi</span></a><nav aria-label="Điều hướng"><a class="nav-link active" href="./" aria-current="page">Trình chiếu</a><a class="nav-link" href="admin.html">Quản trị</a></nav></header>
 <main class="presenter shell">
-<div class="page-heading"><div><p class="eyebrow">HỌC HỎI · SUY NGẪM · SẺ CHIA</p><h1 id="session-title">Cùng khám phá giáo lý</h1><p class="muted" id="session-description">Mỗi câu hỏi, một bước trưởng thành trong đức tin.</p></div><button id="fullscreen" class="secondary">Toàn màn hình</button></div>
+<div class="page-heading"><div><h1 id="session-title">Cùng khám phá giáo lý</h1></div><button id="fullscreen" class="secondary">Toàn màn hình</button></div>
 <div id="load-error" role="alert" hidden></div>
 <div id="presentation" hidden>
-<div class="session-bar"><label class="jump-label">Chuyển đến câu <select id="jump" aria-label="Chuyển đến câu hỏi"></select></label><span id="question-count" class="muted"></span><span class="pill" id="type-label"></span></div>
+<div class="session-bar"><label class="jump-label">Chuyển đến câu <select id="jump" aria-label="Chuyển đến câu hỏi"></select></label><span id="question-count" class="muted"></span></div>
 <article class="question-card" aria-labelledby="question-title">
 <div class="question-top"><span class="eyebrow" id="question-number"></span><div class="timer-wrap"><span class="muted">Thời gian còn lại</span><output id="timer" role="timer" aria-label="Thời gian còn lại">00:30</output></div></div>
 <div class="time-track" aria-hidden="true"><div id="time-fill"></div></div>
@@ -20,9 +20,8 @@
 <div id="answer-explanation" class="answer-explanation" hidden></div>
 </article>
 <div class="presenter-controls"><div class="button-group"><button id="prev" class="secondary">← Câu trước</button><button id="next" class="secondary">Câu tiếp →</button></div><div class="button-group"><button id="timer-toggle" class="secondary">Bắt đầu đếm</button><button id="timer-reset" class="quiet">Đặt lại</button><button id="reveal" class="primary" aria-pressed="false">Hiện đáp án</button></div></div>
-<p id="timer-status" role="status" class="status-line">Sẵn sàng. Bấm “Bắt đầu đếm” khi bắt đầu câu hỏi.</p>
-<p class="keyboard-hint">Phím tắt: ← → chuyển câu · Space đếm / tạm dừng · A hiện / ẩn đáp án · R đặt lại giờ</p>
+<p id="timer-status" role="status" class="status-line"></p>
 </div>
 <div id="empty" class="empty-state" hidden><h2>Chưa có câu hỏi được chọn</h2><p>Vào quản trị và bật “Đưa lên trình chiếu” cho các câu bạn muốn sử dụng.</p><a class="primary button" href="admin.html">Mở quản trị</a></div>
-</main><footer class="shell footer"><span>Giaoly · Đồng hành trong đức tin</span><span id="data-origin"></span></footer>
+</main>
 </body></html>

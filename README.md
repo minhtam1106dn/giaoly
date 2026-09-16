@@ -29,7 +29,7 @@ Trang trình chiếu câu hỏi giáo lý và quản trị trực tuyến.
 | Sắp xếp | 2–12 dòng theo thứ tự đúng | Xếp lại đúng thứ tự và đánh số bước |
 | Trả lời ngắn | Nhập đáp án mẫu | Hiện đáp án trong khung nổi bật |
 
-**Thêm dạng mới:** đặt tên riêng và chọn một trong bảy kiểu hiển thị nền tảng. Kiểu tương tác hoàn toàn mới cần bổ sung bộ hiển thị và quy tắc kiểm tra trong mã nguồn.
+Giao diện quản trị sử dụng các dạng câu hỏi đã có; không còn mục thêm dạng mới.
 
 Dữ liệu mẫu nhằm minh họa chức năng. Người biên soạn nên kiểm tra nội dung theo chương trình giáo lý của buổi thi.
 
