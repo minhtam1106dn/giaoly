@@ -15,9 +15,23 @@ async function raw(path, {method='GET',body,token,headers={}}={}) {
   catch {throw new Error('Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại; nội dung bạn đang nhập vẫn được giữ.');}
   if(!response.ok) {
     const error = await response.json().catch(()=>({}));
+    // Auth codes need actionable messages before generic HTTP permission errors.
+    if(path.startsWith('/auth/')) {
+      const messages = {
+        email_not_confirmed: 'Tài khoản đã được tạo nhưng chưa xác nhận email. Kiểm tra hộp thư hoặc liên hệ người quản trị để kích hoạt tài khoản.',
+        email_address_not_authorized: 'Hệ thống chưa gửi được thư tới email này. Liên hệ người quản trị để kích hoạt tài khoản; không cần tạo lại tài khoản.',
+        user_already_exists: 'Tài khoản đã tồn tại. Hãy chọn Đăng nhập với mật khẩu bạn đã đặt.',
+        email_exists: 'Email đã có tài khoản. Hãy chọn Đăng nhập.',
+        invalid_credentials: 'Email hoặc mật khẩu chưa đúng. Hãy kiểm tra lại thông tin đăng nhập.',
+        weak_password: 'Mật khẩu chưa đủ mạnh. Hãy chọn mật khẩu dài hơn, kết hợp chữ, số và ký tự đặc biệt.',
+        over_email_send_rate_limit: 'Đã đạt giới hạn gửi email. Vui lòng chờ rồi thử lại; nếu đã tạo tài khoản, không bấm tạo lại liên tục.',
+      };
+      if(messages[error.code]) throw new Error(messages[error.code]);
+      if(response.status===429) throw new Error('Bạn đã thử quá nhiều lần. Vui lòng chờ vài phút rồi thử lại.');
+      if(path.includes('/token') && response.status===400) throw new Error('Không đăng nhập được. Kiểm tra email và mật khẩu, rồi thử lại.');
+    }
     if(error.code==='PT409' || response.status===409) throw new Error('Dữ liệu đã được sửa trên máy khác. Xuất bản đang mở để giữ nội dung, rồi tải lại trang trước khi tiếp tục.');
     if(response.status===401 || response.status===403 || error.code==='42501') throw new Error('Phiên đăng nhập hết hạn hoặc tài khoản chưa được cấp quyền admin. Hãy đăng nhập lại.');
-    if(path.includes('/token')) throw new Error('Không đăng nhập được. Kiểm tra email, mật khẩu và trạng thái xác nhận tài khoản.');
     throw new Error(`Không thể thực hiện yêu cầu (${response.status}). Vui lòng thử lại hoặc kiểm tra cấu hình cơ sở dữ liệu.`);
   }
   return response.status===204 ? null : response.json();
