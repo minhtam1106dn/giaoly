@@ -10,9 +10,9 @@ Trang trình chiếu câu hỏi giáo lý và quản trị trực tuyến.
 ## Sử dụng
 
 1. Mở **Quản trị**, đăng nhập bằng email đã được cấp quyền. Lần đầu: nhập email và mật khẩu mới (tối thiểu 10 ký tự), chọn **Tạo tài khoản lần đầu**, rồi xác nhận email theo hướng dẫn.
-2. Thêm hoặc sửa câu hỏi. Nhập nội dung, thời gian 1–3.600 giây và đáp án theo từng dạng.
+2. Chọn một trong 7 tab dạng câu hỏi. Bấm **Thêm câu hỏi** hoặc **Sửa** để mở cửa sổ biên soạn; lưu xong cửa sổ tự đóng. Nhập nội dung, thời gian 1–3.600 giây và đáp án theo từng dạng.
 3. Bật **Đưa lên trình chiếu** cho các câu muốn sử dụng. Các câu tắt vẫn nằm trong kho riêng của admin.
-4. Dùng nút ↑ ↓ hoặc ô vị trí để sắp xếp. Nhấn **Lưu câu hỏi** sau khi biên soạn. Các thao tác chọn câu và đổi thứ tự được lưu ngay.
+4. Mở **Câu hỏi trình chiếu** để xem tất cả câu đã chọn, tổng thời gian và thứ tự thực tế. Dùng nút ↑ ↓ hoặc ô vị trí trong danh sách này để sắp xếp. Nhấn **Lưu câu hỏi** sau khi biên soạn. Các thao tác chọn câu và đổi thứ tự được lưu ngay.
 5. Mở trang trình chiếu. Mỗi lần tải trang lấy bộ câu hỏi mới nhất từ cơ sở dữ liệu. Một buổi đang mở giữ nguyên nội dung để tránh thay đổi giữa lúc thi; tải lại khi muốn nhận bản mới.
 6. Nhấn **Bắt đầu đếm**, **Tạm dừng**, **Đặt lại** hoặc **Hiện đáp án**. Hiện đáp án dừng đồng hồ; hết giờ không tự hiện đáp án và không tự chuyển câu.
 7. Phím tắt ngoài các ô nhập/nút: ← → chuyển câu, Space đếm/tạm dừng, A hiện/ẩn đáp án, R đặt lại đồng hồ.
